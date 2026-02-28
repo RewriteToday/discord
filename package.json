@@ -5,7 +5,9 @@
 	"private": true,
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.4",
-		"@types/bun": "latest"
+		"@commitlint/config-conventional": "^20.4.2",
+		"@types/bun": "latest",
+		"commitlint": "^20.4.2"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
