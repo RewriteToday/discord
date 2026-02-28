@@ -7,6 +7,7 @@ import {
 	PresenceUpdateStatus,
 } from 'seyfert/lib/types';
 import { env } from './env';
+import { middlewares } from './middlewares';
 
 const client = new Client({
 	presence() {
@@ -45,6 +46,10 @@ const client = new Client({
 			},
 		},
 	},
+});
+
+client.setServices({
+	middlewares,
 });
 
 client.cache.users!.filter = ({ bot }) => !bot;
