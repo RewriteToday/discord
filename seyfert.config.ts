@@ -1,7 +1,8 @@
 import { config } from 'seyfert';
+import { env } from '@/env';
 
 export default config.bot({
-	token: process.env.APP_TOKEN!,
+	token: env.APP_TOKEN,
 	locations: {
 		base: 'src/client',
 

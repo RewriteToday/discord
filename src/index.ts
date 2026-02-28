@@ -6,6 +6,7 @@ import {
 	MessageFlags,
 	PresenceUpdateStatus,
 } from 'seyfert/lib/types';
+import { env } from './env';
 
 const client = new Client({
 	presence() {
@@ -36,7 +37,7 @@ const client = new Client({
 								.setEmoji('🩶')
 								.setStyle(ButtonStyle.Link)
 								.setLabel('Go to the server')
-								.setURL(process.env.DISCORD_SERVER_INVITE!),
+								.setURL(env.DISCORD_SERVER_INVITE),
 						]),
 					],
 					content: 'An *error* just occurred, join our server and report it!',
