@@ -1,0 +1,45 @@
+pre-commit:
+  parallel: false
+  commands:
+    biome:
+      run: |
+        FILES=$(git diff --name-only --cached)
+
+        if [ -z "$FILES" ]; then
+          exit 0
+        fi
+
+        echo "$FILES" \
+          | grep -E '\.(ts|js|json)$' \
+          | xargs bun run biome:check --write
+
+        git add $FILES
+
+        bun run biome:check
+
+pre-push:
+  parallel: true
+  commands:
+    check:
+      run: bun run biome:check
+    typecheck:
+      run: |
+        OUTPUT=$(bun run typecheck 2>&1)
+        STATUS=$?
+
+        if [ $STATUS -ne 0 ]; then
+          echo "$OUTPUT"
+          exit $STATUS
+        fi
+
+        if [ -z "$OUTPUT" ]; then
+          echo "Typecheck passed with no output."
+          exit 0
+        fi
+
+        echo "$OUTPUT"
+
+commit-msg:
+  commands:
+    commitlint:
+      run: bun --bun commitlint --edit "$1"

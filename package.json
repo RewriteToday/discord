@@ -15,6 +15,7 @@
 		"seyfert": "^4.2.2"
 	},
 	"scripts": {
-		"biome:check": "biome check --write ."
+		"biome:check": "biome check --write .",
+		"typecheck": "bunx tsc --noEmit"
 	}
 }
