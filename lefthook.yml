@@ -2,6 +2,7 @@ pre-commit:
   parallel: false
   commands:
     biome:
+      use_stdin: true
       run: |
         FILES=$(git diff --name-only --cached)
 
@@ -11,19 +12,19 @@ pre-commit:
 
         echo "$FILES" \
           | grep -E '\.(ts|js|json)$' \
-          | xargs bun run biome:check --write
+          | xargs -r bunx biome check --write
 
         git add $FILES
 
         bun run biome:check
 
 pre-push:
-  parallel: true
   commands:
-    check:
-      run: bun run biome:check
-    typecheck:
+    validate:
+      use_stdin: true
       run: |
+        bun run biome:check
+
         OUTPUT=$(bun run typecheck 2>&1)
         STATUS=$?
 
@@ -42,4 +43,5 @@ pre-push:
 commit-msg:
   commands:
     commitlint:
-      run: bun --bun commitlint --edit "$1"
+      use_stdin: true
+      run: bun --bun commitlint --edit {1}
