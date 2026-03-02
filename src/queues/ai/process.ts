@@ -12,6 +12,9 @@ const OPEN_TICKET_CUSTOM_ID = 'open_ticket';
 const ATTACHMENT_MESSAGE = 'Exemplo no arquivo anexo';
 const CODE_FILE_BASENAME_FALLBACK = 'code-example';
 
+const TEAM_ROLE_ID = '1477343596763025532';
+const TICKET_CATEGORY_ID = '1478070171020300348';
+
 const languageExtensionMap: Record<string, string> = {
 	bash: 'sh',
 	curl: 'sh',
@@ -198,6 +201,7 @@ const registerTicketCollector = (job: AiJobData): void => {
 		const channel = await client.guilds.channels.create(job.guildId!, {
 			type: ChannelType.GuildText,
 			name: `ticket-${job.authorId}`,
+			parent_id: TICKET_CATEGORY_ID,
 		});
 
 		await Promise.all([
@@ -206,6 +210,9 @@ const registerTicketCollector = (job: AiJobData): void => {
 			}),
 			updateReply(job, {
 				components: [],
+			}),
+			channel.messages.write({
+				content: `Hey <@&${TEAM_ROLE_ID}>, the user ${interaction.user} has opened this ticket.`,
 			}),
 		]);
 
