@@ -9,5 +9,5 @@ export default config.bot({
 		events: 'events',
 		commands: 'commands',
 	},
-	intents: ['Guilds'],
+	intents: ['Guilds', 'MessageContent', 'GuildMembers', 'GuildMessages'],
 });
