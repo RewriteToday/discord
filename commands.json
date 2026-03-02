@@ -7,5 +7,34 @@
 		"contexts": [0, 1, 2],
 		"integration_types": [0],
 		"options": []
+	},
+	{
+		"name": "github",
+		"type": 1,
+		"nsfw": false,
+		"description": "(github, git): Go directly to our GitHub repository",
+		"contexts": [0, 1, 2],
+		"integration_types": [0],
+		"options": [
+			{
+				"name": "repository",
+				"choices": [
+					{ "name": "Node.js SDK", "value": "node" },
+					{ "name": "REST client", "value": "rest" },
+					{ "name": "Types Definitions", "value": "types" },
+					{ "name": "Zod Schemas", "value": "zod" },
+					{ "name": "Golang SDK", "value": "golang" },
+					{ "name": "CLI", "value": "cli" },
+					{ "name": "Documentation", "value": "docs" },
+					{ "name": "AI Skills", "value": "skills" },
+					{ "name": "Community (.github)", "value": ".github" }
+				],
+				"description": "Enter the repository name",
+				"type": 3,
+				"name_localizations": {},
+				"description_localizations": {},
+				"autocomplete": false
+			}
+		]
 	}
 ]
