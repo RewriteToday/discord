@@ -13,11 +13,13 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"bullmq": "^5.70.1",
 		"envalid": "^8.1.1",
 		"seyfert": "^4.2.2"
 	},
 	"scripts": {
 		"biome:check": "biome check --write .",
-		"typecheck": "bunx tsc --noEmit"
+		"typecheck": "bunx tsc --noEmit",
+		"client": "bun run src/index.ts"
 	}
 }

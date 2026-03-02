@@ -1,0 +1,11 @@
+[
+	{
+		"name": "ping",
+		"type": 1,
+		"nsfw": false,
+		"description": "(ping, latency): Show current Rewrite app latency",
+		"contexts": [0, 1, 2],
+		"integration_types": [0],
+		"options": []
+	}
+]
