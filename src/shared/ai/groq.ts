@@ -8,7 +8,7 @@ type GroqRequestResult = {
 	status?: number;
 };
 
-const MAX_REFERENCE_CHARS = 18000;
+const MAX_REFERENCE_CHARS = 12000;
 const QUOTA_EXCEEDED_REPLY =
 	'A IA esta temporariamente indisponivel porque a cota da Groq foi excedida para a chave configurada. Ative billing/aumente a cota e tente novamente.';
 
@@ -154,22 +154,112 @@ const buildFocusedReference = (question: string, reference: string): string => {
 	return selected.join('\n\n');
 };
 
+const stripOuterCodeFence = (raw: string): string => {
+	const trimmed = raw.trim();
+	const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+
+	return fenceMatch?.[1]?.trim() ?? trimmed;
+};
+
+const parseJsonAnswer = (value: string): string | undefined => {
+	try {
+		const parsed = JSON.parse(value) as { answer?: unknown };
+
+		if (typeof parsed.answer !== 'string') {
+			return undefined;
+		}
+
+		const answer = parsed.answer.trim();
+
+		return answer || undefined;
+	} catch {
+		return undefined;
+	}
+};
+
+const escapedCharacterMap: Record<string, string> = {
+	'"': '"',
+	'\\': '\\',
+	'/': '/',
+	b: '\b',
+	f: '\f',
+	n: '\n',
+	r: '\r',
+	t: '\t',
+};
+
+const decodeEscapedCharacters = (value: string): string =>
+	value
+		.replace(/\\u([0-9a-fA-F]{4})/g, (_match, code) =>
+			String.fromCharCode(Number.parseInt(code, 16)),
+		)
+		.replace(/\\([\\/"bfnrt])/g, (_match, escaped) => {
+			const replacement = escapedCharacterMap[escaped];
+			return replacement ?? escaped;
+		});
+
+const extractAnswerFromJsonLike = (value: string): string | undefined => {
+	const keyMatch = value.match(/"answer"\s*:\s*"/);
+
+	if (!keyMatch) {
+		return undefined;
+	}
+
+	let cursor = keyMatch.index! + keyMatch[0].length;
+	let answer = '';
+
+	while (cursor < value.length) {
+		const char = value[cursor];
+
+		if (char === '\\') {
+			const nextChar = value[cursor + 1];
+
+			if (!nextChar) {
+				answer += char;
+				cursor += 1;
+				continue;
+			}
+
+			answer += `\\${nextChar}`;
+			cursor += 2;
+			continue;
+		}
+
+		if (char === '"') {
+			const remainder = value.slice(cursor + 1);
+
+			if (/^\s*[,}]/.test(remainder)) {
+				const decoded = decodeEscapedCharacters(answer).trim();
+				return decoded || undefined;
+			}
+		}
+
+		answer += char;
+		cursor += 1;
+	}
+
+	const decoded = decodeEscapedCharacters(answer).trim();
+	return decoded || undefined;
+};
+
 const parseAnswer = (raw: string): string | undefined => {
-	const normalized = raw.trim().replace(/^```(?:json)?\s*|\s*```$/g, '');
+	const normalized = stripOuterCodeFence(raw);
 
 	if (!normalized) return undefined;
 	if (normalized === UNKNOWN_ANSWER) return undefined;
 
-	try {
-		const parsed = JSON.parse(normalized) as { answer?: string | null };
-		const answer = parsed.answer?.trim();
+	const parsedAnswer =
+		parseJsonAnswer(normalized) ?? extractAnswerFromJsonLike(normalized);
 
-		if (!answer || answer === UNKNOWN_ANSWER) return undefined;
+	if (parsedAnswer) {
+		if (parsedAnswer === UNKNOWN_ANSWER) {
+			return undefined;
+		}
 
-		return answer;
-	} catch {
-		return normalized;
+		return parsedAnswer;
 	}
+
+	return normalized;
 };
 
 const buildPrompt = (reference: string, question: string): string =>
@@ -178,6 +268,7 @@ const buildPrompt = (reference: string, question: string): string =>
 		'When the user asks about an endpoint, answer completely: include method, path, auth, fields, and example payloads when the reference supports them.',
 		'When the user asks for code, provide one practical code snippet in the exact language, runtime, or tool requested by the user.',
 		'When the user asks for code, optimize for clean code and the smallest snippet possible without losing clarity.',
+		'When the user asks for code and does not ask for a full project, keep code snippets up to 40 lines.',
 		'Prefer async/await over promise chains; avoid .then/.catch in examples unless the user explicitly asks for that style.',
 		'Keep code examples compact: avoid boilerplate, avoid redundant variables, and keep only the required lines.',
 		'Use clear names, minimal structure, and no unnecessary comments.',
@@ -192,6 +283,7 @@ const buildPrompt = (reference: string, question: string): string =>
 		'Prefer 2 to 6 short lines, unless the user explicitly asks for more detail.',
 		'Use at most one example block unless the user explicitly asks for multiple examples.',
 		'Format for Discord: use **Section** headers, bullet lists, inline code for paths/headers, and fenced code blocks for JSON, JavaScript, or TypeScript examples.',
+		'When using code fences, always open and close with triple backticks (```), never one or two backticks.',
 		'Do not invent undocumented fields, endpoints, enums, headers, auth schemes, or response shapes.',
 		`Only return ${UNKNOWN_ANSWER} when the reference does not provide enough information to identify the relevant endpoint, required auth, or supported fields for the user request.`,
 		'Return valid JSON only, with this shape:',
@@ -266,7 +358,7 @@ const askWithGroq = async (
 			body: JSON.stringify({
 				model: env.GROQ_MODEL || GROQ_DEFAULT_MODEL,
 				temperature: 0.1,
-				max_tokens: 512,
+				max_tokens: 320,
 				messages: [
 					{
 						role: 'user',
