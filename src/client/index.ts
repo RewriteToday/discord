@@ -24,7 +24,7 @@ export const client = new Client({
 				{
 					name: 'Rewrite',
 					type: ActivityType.Custom,
-					state: 'rewritetoday.com 🩶',
+					state: 'SMS the way it should be | rewritetoday.com',
 				},
 			],
 			status: PresenceUpdateStatus.Online,
