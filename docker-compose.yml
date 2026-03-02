@@ -1,0 +1,33 @@
+services:
+  pg:
+    image: postgres:16-alpine
+    ports:
+      - "7000:5432"
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: rewrite
+    volumes:
+      - pg-data:/var/lib/postgresql/pg-data
+    
+  dragonfly:
+    image: 'docker.dragonflydb.io/dragonflydb/dragonfly'
+    ports:
+      - "6379:6379"
+    ulimits:
+      memlock: -1
+    volumes:
+      - dragonflydata:/data
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis_password}
+    command:
+      [
+        "--proactor_threads=2",
+        "--maxmemory=600mb",
+        "--default_lua_flags=allow-undeclared-keys",
+        "--requirepass=${REDIS_PASSWORD:-redis_password}"
+      ]
+
+volumes:
+  pg-data:
+  dragonflydata:
