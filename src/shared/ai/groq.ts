@@ -9,8 +9,7 @@ type GroqRequestResult = {
 };
 
 const MAX_REFERENCE_CHARS = 12000;
-const QUOTA_EXCEEDED_REPLY =
-	'A IA esta temporariamente indisponivel porque a cota da Groq foi excedida para a chave configurada. Ative billing/aumente a cota e tente novamente.';
+const QUOTA_EXCEEDED_REPLY = 'We cannot answer this for now, try again later.';
 
 const normalize = (value: string): string =>
 	value
