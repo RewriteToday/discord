@@ -38,6 +38,26 @@ const languageExtensionMap: Record<string, string> = {
 const getCodeFileExtension = (language: string): string =>
 	languageExtensionMap[language] ?? 'txt';
 
+type MessageUpdateBody = Parameters<typeof client.messages.edit>[2];
+type InteractionUpdateBody = Parameters<
+	typeof client.interactions.editOriginal
+>[1];
+
+const toInteractionUpdateBody = (
+	body: MessageUpdateBody,
+): InteractionUpdateBody => {
+	const { flags, ...rest } = body;
+
+	if (flags == null) {
+		return rest as InteractionUpdateBody;
+	}
+
+	return {
+		...rest,
+		flags,
+	} as InteractionUpdateBody;
+};
+
 const filenameStopWords = new Set([
 	'a',
 	'and',
@@ -149,10 +169,15 @@ const selectCodeBlock = (
 	);
 };
 
-export const updateReply = async (
-	job: AiJobData,
-	body: Parameters<typeof client.messages.edit>[2],
-) => {
+export const updateReply = async (job: AiJobData, body: MessageUpdateBody) => {
+	if (job.isInteraction && job.interactionToken) {
+		await client.interactions.editOriginal(
+			job.interactionToken,
+			toInteractionUpdateBody(body),
+		);
+		return;
+	}
+
 	await client.messages.edit(job.replyMessageId, job.channelId, body);
 };
 

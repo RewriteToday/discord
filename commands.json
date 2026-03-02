@@ -36,5 +36,12 @@
 				"autocomplete": false
 			}
 		]
+	},
+	{
+		"name": "Answer",
+		"type": 3,
+		"description": "",
+		"contexts": [0],
+		"integration_types": [0]
 	}
 ]
