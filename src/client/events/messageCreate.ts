@@ -1,33 +1,41 @@
 import { ActionRow, Button, createEvent } from 'seyfert';
 import { ButtonStyle } from 'seyfert/lib/types';
-import { aiQueue } from '@/queues';
+import { enqueueAiJob } from '@/queues/ai/enqueue';
 import { processAiJobData, updateReply } from '@/queues/ai/process';
 import { isExpectedRedisError } from '@/queues/redis';
-import { AI_JOB_NAME, type AiJobData } from '@/types/queue';
+import type { AiJobData } from '@/types/queue';
 
 const WEBSITE_URL = 'https://www.rewritetoday.com/';
 const THINKING_MESSAGE = 'We are currently thinking about your question...';
 const PROCESSING_ERROR_MESSAGE =
 	'Sorry, we could not process your question right now. Please try again.';
 
-const queueJob = async (jobData: AiJobData): Promise<void> => {
-	await aiQueue.add(AI_JOB_NAME, jobData, {
-		jobId: jobData.replyMessageId,
-		removeOnComplete: 1000,
-		removeOnFail: 1000,
-	});
+const getMentionQuestion = (content: string, botId: string) => {
+	const mentionPrefix = `<@${botId}>`;
+
+	if (content.startsWith(mentionPrefix)) {
+		return content.slice(mentionPrefix.length).trim();
+	}
+
+	const nicknameMentionPrefix = `<@!${botId}>`;
+
+	if (content.startsWith(nicknameMentionPrefix)) {
+		return content.slice(nicknameMentionPrefix.length).trim();
+	}
+
+	return undefined;
 };
 
 const updateReplySafely = async (
 	jobData: AiJobData,
 	body: Parameters<typeof updateReply>[1],
-): Promise<void> => {
+) => {
 	try {
 		await updateReply(jobData, body);
 	} catch {}
 };
 
-const processQuestionDirectly = async (jobData: AiJobData): Promise<void> => {
+const processQuestionDirectly = async (jobData: AiJobData) => {
 	try {
 		await processAiJobData(jobData);
 	} catch {
@@ -41,11 +49,9 @@ export default createEvent({
 	data: { name: 'messageCreate' },
 	async run(message, client) {
 		const { content } = message;
-		const clientMention = `<@${client.me.id}>`;
+		const question = getMentionQuestion(content, client.me.id);
 
-		if (!content.startsWith(clientMention)) return;
-
-		const question = content.slice(clientMention.length).trim();
+		if (question === undefined) return;
 
 		if (!question) {
 			await message.reply({
@@ -77,7 +83,7 @@ export default createEvent({
 		};
 
 		try {
-			await queueJob(jobData);
+			await enqueueAiJob(jobData);
 		} catch (error) {
 			if (isExpectedRedisError(error)) {
 				client.logger.warn('<AiQueue>.add using direct fallback');
