@@ -49,6 +49,14 @@ const options = {
 				name: 'Community (.github)',
 				value: '.github',
 			},
+			{
+				name: 'MCP',
+				value: 'mcp',
+			},
+			{
+				name: 'n8n',
+				value: 'n8n',
+			},
 		],
 		description: 'Enter the repository name',
 	}),
