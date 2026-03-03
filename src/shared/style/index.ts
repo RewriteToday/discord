@@ -1,8 +1,8 @@
 export const createDesc = (content: string, aliases: string[]) =>
 	`(${aliases.join(', ')}): ${content}`;
 
-const codeFenceRegex = /^(\s*)`{1,3}([a-zA-Z0-9_+-]*)\s*$/;
-const markdownCodeBlockRegex = /```([a-zA-Z0-9_+-]*)\n?([\s\S]*?)```/g;
+const openingCodeFenceRegex = /^(\s*)`{1,3}([^\s`]*)\s*$/;
+const closingCodeFenceRegex = /^(\s*)`{1,3}\s*$/;
 
 type ExtractedCodeBlock = {
 	language: string;
@@ -26,18 +26,32 @@ export const formatDiscordMarkdown = (content: string): string => {
 	let isInsideFence = false;
 
 	for (const line of lines) {
-		const match = line.match(codeFenceRegex);
+		if (!isInsideFence) {
+			const openingMatch = line.match(openingCodeFenceRegex);
 
-		if (!match) {
+			if (!openingMatch) {
+				formattedLines.push(line);
+				continue;
+			}
+
+			const indentation = openingMatch[1] ?? '';
+			const language = (openingMatch[2] ?? '').trim().split(/\s+/)[0] ?? '';
+
+			formattedLines.push(`${indentation}\`\`\`${language}`);
+			isInsideFence = true;
+			continue;
+		}
+
+		const closingMatch = line.match(closingCodeFenceRegex);
+
+		if (!closingMatch) {
 			formattedLines.push(line);
 			continue;
 		}
 
-		const indentation = match[1] ?? '';
-		const language = (match[2] ?? '').trim();
-
-		formattedLines.push(`${indentation}\`\`\`${language}`);
-		isInsideFence = !isInsideFence;
+		const indentation = closingMatch[1] ?? '';
+		formattedLines.push(`${indentation}\`\`\``);
+		isInsideFence = false;
 	}
 
 	if (isInsideFence) {
@@ -51,27 +65,59 @@ export const separateDiscordCodeBlocks = (
 	content: string,
 ): DiscordMarkdownWithCodeBlocks => {
 	const codeBlocks: ExtractedCodeBlock[] = [];
-	const textWithoutCode = content.replace(
-		markdownCodeBlockRegex,
-		(_fullMatch, rawLanguage: string, rawCode: string) => {
-			const language = rawLanguage.trim().toLowerCase();
-			const code = rawCode.replace(/^\n+|\n+$/g, '');
+	const lines = content.replace(/\r\n?/g, '\n').split('\n');
+	const textLines: string[] = [];
+	let currentLanguage = '';
+	let currentCodeLines: string[] | undefined;
 
-			if (!code.trim()) {
-				return '';
+	for (const line of lines) {
+		if (!currentCodeLines) {
+			const openingMatch = line.match(/^(\s*)```([^\s`]*)\s*$/);
+
+			if (!openingMatch) {
+				textLines.push(line);
+				continue;
 			}
 
+			currentLanguage = (openingMatch[2] ?? '').trim().toLowerCase();
+			currentCodeLines = [];
+			continue;
+		}
+
+		if (!/^(\s*)```\s*$/.test(line)) {
+			currentCodeLines.push(line);
+			continue;
+		}
+
+		const code = currentCodeLines.join('\n').replace(/^\n+|\n+$/g, '');
+
+		if (code.trim()) {
 			codeBlocks.push({
-				language,
+				language: currentLanguage,
 				code,
 			});
+		}
 
-			return '';
-		},
-	);
+		currentLanguage = '';
+		currentCodeLines = undefined;
+	}
+
+	if (currentCodeLines) {
+		const languageSuffix = currentLanguage ? currentLanguage : '';
+		textLines.push(`\`\`\`${languageSuffix}`);
+
+		if (currentCodeLines.length) {
+			textLines.push(...currentCodeLines);
+		}
+
+		textLines.push('```');
+	}
 
 	return {
-		content: textWithoutCode.replace(/\n{3,}/g, '\n\n').trim(),
+		content: textLines
+			.join('\n')
+			.replace(/\n{3,}/g, '\n\n')
+			.trim(),
 		codeBlocks,
 	};
 };

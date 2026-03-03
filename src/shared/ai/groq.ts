@@ -153,11 +153,22 @@ const buildFocusedReference = (question: string, reference: string): string => {
 	return selected.join('\n\n');
 };
 
-const stripOuterCodeFence = (raw: string): string => {
-	const trimmed = raw.trim();
-	const fenceMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+type OuterFence = {
+	language: string;
+	payload: string;
+};
 
-	return fenceMatch?.[1]?.trim() ?? trimmed;
+const extractOuterFence = (value: string): OuterFence | undefined => {
+	const fenceMatch = value.match(/^```([^\n`]*)\n?([\s\S]*?)\n?```$/);
+
+	if (!fenceMatch) {
+		return undefined;
+	}
+
+	return {
+		language: (fenceMatch[1] ?? '').trim().toLowerCase(),
+		payload: (fenceMatch[2] ?? '').trim(),
+	};
 };
 
 const parseJsonAnswer = (value: string): string | undefined => {
@@ -242,7 +253,7 @@ const extractAnswerFromJsonLike = (value: string): string | undefined => {
 };
 
 const parseAnswer = (raw: string): string | undefined => {
-	const normalized = stripOuterCodeFence(raw);
+	const normalized = raw.trim();
 
 	if (!normalized) return undefined;
 	if (normalized === UNKNOWN_ANSWER) return undefined;
@@ -256,6 +267,31 @@ const parseAnswer = (raw: string): string | undefined => {
 		}
 
 		return parsedAnswer;
+	}
+
+	const outerFence = extractOuterFence(normalized);
+
+	if (!outerFence) {
+		return normalized;
+	}
+
+	const isJsonFence =
+		outerFence.language.length === 0 || outerFence.language === 'json';
+
+	if (!isJsonFence) {
+		return normalized;
+	}
+
+	const parsedFencedAnswer =
+		parseJsonAnswer(outerFence.payload) ??
+		extractAnswerFromJsonLike(outerFence.payload);
+
+	if (parsedFencedAnswer) {
+		if (parsedFencedAnswer === UNKNOWN_ANSWER) {
+			return undefined;
+		}
+
+		return parsedFencedAnswer;
 	}
 
 	return normalized;
