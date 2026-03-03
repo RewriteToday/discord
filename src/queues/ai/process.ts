@@ -13,7 +13,7 @@ const ATTACHMENT_MESSAGE = 'Exemplo no arquivo anexo';
 const CODE_FILE_BASENAME_FALLBACK = 'code-example';
 
 const TEAM_ROLE_ID = '1477343596763025532';
-const TICKET_CATEGORY_ID = '1478070171020300348';
+const TICKET_CATEGORY_ID = '1478093098465759342';
 
 const languageExtensionMap: Record<string, string> = {
 	bash: 'sh',
