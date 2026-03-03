@@ -3,6 +3,11 @@ export const createDesc = (content: string, aliases: string[]) =>
 
 const openingCodeFenceRegex = /^(\s*)`{1,3}([^\s`]*)\s*$/;
 const closingCodeFenceRegex = /^(\s*)`{1,3}\s*$/;
+const fencedBlockOpeningRegex = /^(\s*)```([^\s`]*)\s*$/;
+const fencedBlockClosingRegex = /^(\s*)```\s*$/;
+const windowsNewlineRegex = /\r\n?/g;
+const edgeNewlineRegex = /^\n+|\n+$/g;
+const excessiveNewlinesRegex = /\n{3,}/g;
 
 type ExtractedCodeBlock = {
 	language: string;
@@ -14,8 +19,8 @@ export type DiscordMarkdownWithCodeBlocks = {
 	codeBlocks: ExtractedCodeBlock[];
 };
 
-export const formatDiscordMarkdown = (content: string): string => {
-	const normalizedContent = content.replace(/\r\n?/g, '\n').trim();
+export const formatDiscordMarkdown = (content: string) => {
+	const normalizedContent = content.replace(windowsNewlineRegex, '\n').trim();
 
 	if (!normalizedContent) {
 		return normalizedContent;
@@ -61,18 +66,16 @@ export const formatDiscordMarkdown = (content: string): string => {
 	return formattedLines.join('\n').trim();
 };
 
-export const separateDiscordCodeBlocks = (
-	content: string,
-): DiscordMarkdownWithCodeBlocks => {
+export const separateDiscordCodeBlocks = (content: string) => {
 	const codeBlocks: ExtractedCodeBlock[] = [];
-	const lines = content.replace(/\r\n?/g, '\n').split('\n');
+	const lines = content.replace(windowsNewlineRegex, '\n').split('\n');
 	const textLines: string[] = [];
 	let currentLanguage = '';
 	let currentCodeLines: string[] | undefined;
 
 	for (const line of lines) {
 		if (!currentCodeLines) {
-			const openingMatch = line.match(/^(\s*)```([^\s`]*)\s*$/);
+			const openingMatch = line.match(fencedBlockOpeningRegex);
 
 			if (!openingMatch) {
 				textLines.push(line);
@@ -84,12 +87,12 @@ export const separateDiscordCodeBlocks = (
 			continue;
 		}
 
-		if (!/^(\s*)```\s*$/.test(line)) {
+		if (!fencedBlockClosingRegex.test(line)) {
 			currentCodeLines.push(line);
 			continue;
 		}
 
-		const code = currentCodeLines.join('\n').replace(/^\n+|\n+$/g, '');
+		const code = currentCodeLines.join('\n').replace(edgeNewlineRegex, '');
 
 		if (code.trim()) {
 			codeBlocks.push({
@@ -116,7 +119,7 @@ export const separateDiscordCodeBlocks = (
 	return {
 		content: textLines
 			.join('\n')
-			.replace(/\n{3,}/g, '\n\n')
+			.replace(excessiveNewlinesRegex, '\n\n')
 			.trim(),
 		codeBlocks,
 	};
