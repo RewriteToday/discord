@@ -68,15 +68,18 @@ export default class GithubCommand extends Command {
 		const { repository } = ctx.options;
 
 		const isGoingToOrg = repository === undefined;
+		const targetUrl = isGoingToOrg
+			? 'https://github.com/RewriteToday'
+			: `https://github.com/RewriteToday/${repository}`;
 
 		await ctx.editOrReply({
-			content: `Use the button below to go to our GitHub ${isGoingToOrg ? 'organization' : `repository`}.`,
+			content: `Use the button below to go to our GitHub ${isGoingToOrg ? 'organization' : 'repository'}.`,
 			components: [
 				new ActionRow<Button>().setComponents([
 					new Button()
 						.setLabel('Go to GitHub')
 						.setStyle(ButtonStyle.Link)
-						.setURL(`https://github.com/RewriteToday/${repository}`),
+						.setURL(targetUrl),
 				]),
 			],
 		});
