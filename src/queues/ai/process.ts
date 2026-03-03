@@ -1,5 +1,5 @@
 import { ActionRow, Button } from 'seyfert';
-import { ButtonStyle, ChannelType } from 'seyfert/lib/types';
+import { ButtonStyle, ChannelType, MessageFlags } from 'seyfert/lib/types';
 import { client } from '@/client';
 import { ask } from '@/shared/ai';
 import {
@@ -206,6 +206,7 @@ const registerTicketCollector = (job: AiJobData): void => {
 
 		await Promise.all([
 			interaction.write({
+				flags: MessageFlags.Ephemeral,
 				content: `Your ticket has been opened. You can view it here ${channel}`,
 			}),
 			updateReply(job, {
