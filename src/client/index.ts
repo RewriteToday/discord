@@ -9,6 +9,7 @@ import {
 import { env } from '../env';
 import { middlewares } from '../middlewares';
 
+const COMMAND_PREFIXES = ['r.'];
 const cachedChannelTypes = new Set<ChannelType>([
 	ChannelType.GuildText,
 	ChannelType.PublicThread,
@@ -32,7 +33,7 @@ export const client = new Client({
 	},
 	commands: {
 		prefix() {
-			return ['r.'];
+			return COMMAND_PREFIXES;
 		},
 		defaults: {
 			async onRunError(context) {
