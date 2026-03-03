@@ -13,6 +13,6 @@ export const isAuthed = createMiddleware<never>(
 			return pass();
 		}
 
-		next();
+		return next();
 	},
 );
