@@ -1,9 +1,9 @@
-import { cleanEnv, num, str } from 'envalid';
+import { cleanEnv, json, num, str } from 'envalid';
 
 export const env = cleanEnv(process.env, {
 	APP_TOKEN: str({ desc: 'Discord token of the app' }),
 	DISCORD_SERVER_INVITE: str({ desc: 'Invite URL of the support server' }),
-	DEVELOPER_ID: str({ desc: 'Discord ID of the developer' }),
+	TEAM_MEMBERS_ID: json<string[]>({ desc: 'Discord ID of the dev team' }),
 	GROQ_API_KEY: str({ desc: 'Groq API key' }),
 	GROQ_MODEL: str({
 		default: 'llama-3.3-70b-versatile',
