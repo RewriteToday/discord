@@ -1,34 +1,34 @@
 import { askGroqWithReference } from './groq';
 import { loadLlmSpec } from './spec';
 
-const normalize = (value: string): string =>
-	value
-		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
-		.toLowerCase();
+const DIACRITICS_REGEX = /[\u0300-\u036f]/g;
+const LLM_SPEC_REFERENCE_URL = 'https://rewritetoday.com/llms.txt';
 
-const looksLikeDocumentationQuestion = (question: string): boolean => {
+const normalize = (value: string) =>
+	value.normalize('NFD').replace(DIACRITICS_REGEX, '').toLowerCase();
+
+const includesAny = (value: string, terms: string[]) =>
+	terms.some((term) => value.includes(term));
+
+const looksLikeDocumentationQuestion = (question: string) => {
 	const normalized = normalize(question);
-	const asksForLink =
-		normalized.includes('url') ||
-		normalized.includes('link') ||
-		normalized.includes('site') ||
-		normalized.includes('onde');
+	const asksForLink = includesAny(normalized, ['url', 'link', 'site', 'onde']);
 
-	const mentionsDocs =
-		normalized.includes('documentacao') ||
-		normalized.includes('documentation') ||
-		normalized.includes('docs');
+	const mentionsDocs = includesAny(normalized, [
+		'documentacao',
+		'documentation',
+		'docs',
+	]);
 
 	return asksForLink && mentionsDocs;
 };
 
-const extractGithubOrgUrl = (llmSpec: string): string | undefined => {
+const extractGithubOrgUrl = (llmSpec: string) => {
 	const orgMatch = llmSpec.match(/https:\/\/github\.com\/[A-Za-z0-9_.-]+/);
 	return orgMatch?.[0];
 };
 
-const getDocumentationUrlFromSpec = (llmSpec: string): string | undefined => {
+const getDocumentationUrlFromSpec = (llmSpec: string) => {
 	const explicitDocsUrl = llmSpec.match(
 		/https?:\/\/[^\s`)<>"']*(?:docs|documentation)[^\s`)<>"']*/i,
 	)?.[0];
@@ -50,17 +50,17 @@ const getDocumentationUrlFromSpec = (llmSpec: string): string | undefined => {
 	return undefined;
 };
 
-const buildDocumentationReply = (llmSpec: string): string | undefined => {
+const buildDocumentationReply = (llmSpec: string) => {
 	const docsUrl = getDocumentationUrlFromSpec(llmSpec);
 
 	if (!docsUrl) {
 		return undefined;
 	}
 
-	return `Documentacao: ${docsUrl}\nEspecificacao LLM: https://rewritetoday.com/llms.txt`;
+	return `Documentacao: ${docsUrl}\nEspecificacao LLM: ${LLM_SPEC_REFERENCE_URL}`;
 };
 
-export const ask = async (content: string): Promise<string | undefined> => {
+export const ask = async (content: string) => {
 	const question = content.trim();
 
 	if (!question) return undefined;
