@@ -5,6 +5,10 @@ export const env = cleanEnv(process.env, {
 	DISCORD_SERVER_INVITE: str({ desc: 'Invite URL of the support server' }),
 	TEAM_MEMBERS_ID: json<string[]>({ desc: 'Discord ID of the dev team' }),
 	GROQ_API_KEY: str({ desc: 'Groq API key' }),
+	GROQ_FALLBACK_API_KEYS: json<string[]>({
+		default: [],
+		desc: 'Fallback Groq API keys',
+	}),
 	GROQ_MODEL: str({
 		default: 'llama-3.3-70b-versatile',
 		desc: 'Groq model used for answers',

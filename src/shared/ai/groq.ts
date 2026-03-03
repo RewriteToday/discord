@@ -16,6 +16,15 @@ const TOKEN_SPLIT_REGEX = /[^a-z0-9]+/;
 const UNICODE_ESCAPE_REGEX = /\\u([0-9a-fA-F]{4})/g;
 const ESCAPED_CHARACTER_REGEX = /\\([\\/"bfnrt])/g;
 
+const configuredGroqApiKeys = Array.from(
+	new Set([
+		env.GROQ_API_KEY,
+		...env.GROQ_FALLBACK_API_KEYS.map((value) => value.trim()).filter(Boolean),
+	]),
+);
+
+let groqApiKeyCursor = 0;
+
 const normalize = (value: string) =>
 	value.normalize('NFD').replace(DIACRITICS_REGEX, '').toLowerCase();
 
@@ -376,13 +385,17 @@ const isQuotaExceeded = (result: GroqRequestResult) => {
 	);
 };
 
-const askWithGroq = async (question: string, reference: string) => {
+const askWithGroq = async (
+	question: string,
+	reference: string,
+	apiKey: string,
+) => {
 	const response = await fetch(
 		'https://api.groq.com/openai/v1/chat/completions',
 		{
 			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${env.GROQ_API_KEY}`,
+				Authorization: `Bearer ${apiKey}`,
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
@@ -430,20 +443,40 @@ export const askGroqWithReference = async (
 	reference: string,
 ) => {
 	const preparedReference = buildFocusedReference(question, reference);
-	const result = await askWithGroq(question, preparedReference);
+	let lastResult: GroqRequestResult | undefined;
+	let allAttemptsRateLimited = true;
 
-	if (result.answer) {
-		return result.answer;
+	for (let attempt = 0; attempt < configuredGroqApiKeys.length; attempt += 1) {
+		const keyIndex =
+			(groqApiKeyCursor + attempt) % configuredGroqApiKeys.length;
+		const apiKey = configuredGroqApiKeys[keyIndex];
+		const result = await askWithGroq(question, preparedReference, apiKey);
+		lastResult = result;
+
+		if (result.answer) {
+			groqApiKeyCursor = (keyIndex + 1) % configuredGroqApiKeys.length;
+			return result.answer;
+		}
+
+		const shouldRotateKey = result.rateLimited || isQuotaExceeded(result);
+
+		if (shouldRotateKey) {
+			groqApiKeyCursor = (keyIndex + 1) % configuredGroqApiKeys.length;
+			continue;
+		}
+
+		allAttemptsRateLimited = false;
+		break;
 	}
 
-	if (isQuotaExceeded(result)) {
+	if (allAttemptsRateLimited && lastResult) {
 		return QUOTA_EXCEEDED_REPLY;
 	}
 
 	console.warn('<AI>.askGroqWithReference no answer', {
-		error: result.error,
-		rateLimited: result.rateLimited,
-		status: result.status,
+		error: lastResult?.error,
+		rateLimited: lastResult?.rateLimited,
+		status: lastResult?.status,
 	});
 
 	return undefined;
