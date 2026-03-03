@@ -20,7 +20,7 @@ const expectedRedisErrorMessages = [
 	'wrongpass',
 ];
 
-const getErrorMessage = (error: unknown): string | undefined => {
+const getErrorMessage = (error: unknown) => {
 	if (typeof error === 'string') return error;
 	if (error instanceof Error) return error.message;
 
@@ -33,7 +33,7 @@ const getErrorMessage = (error: unknown): string | undefined => {
 	return undefined;
 };
 
-const getErrorCode = (error: unknown): string | undefined => {
+const getErrorCode = (error: unknown) => {
 	if (!error || typeof error !== 'object' || !('code' in error)) {
 		return undefined;
 	}
@@ -43,7 +43,7 @@ const getErrorCode = (error: unknown): string | undefined => {
 	return typeof code === 'string' ? code : undefined;
 };
 
-export const isExpectedRedisError = (error: unknown): boolean => {
+export const isExpectedRedisError = (error: unknown) => {
 	const code = getErrorCode(error);
 
 	if (code && expectedRedisErrorCodes.has(code)) {
