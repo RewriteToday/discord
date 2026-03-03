@@ -2,34 +2,32 @@ import { env } from '@/env';
 
 let llmSpecPromise: Promise<string | undefined> | undefined;
 
+const SPEC_FETCH_TIMEOUT_MS = 7000;
+
 const fallbackSpecUrls = [
-	'https://rewritetoday.com/llm.txt',
-	'https://www.rewritetoday.com/llm.txt',
 	'https://rewritetoday.com/llms.txt',
 	'https://www.rewritetoday.com/llms.txt',
 ];
 
-const getSpecUrls = (): string[] => {
-	const allUrls = [env.LLM_SPEC_URL, ...fallbackSpecUrls];
-	return Array.from(new Set(allUrls.map((url) => url.trim()).filter(Boolean)));
-};
+const specUrls = Array.from(
+	new Set([env.LLM_SPEC_URL, ...fallbackSpecUrls].map((url) => url.trim())),
+).filter(Boolean);
 
-const isHtmlDocument = (content: string): boolean => {
+const isHtmlDocument = (content: string) => {
 	const normalized = content.trimStart().toLowerCase();
+
 	return (
 		normalized.startsWith('<!doctype html') || normalized.startsWith('<html')
 	);
 };
 
-const fetchLlmSpecFromUrl = async (
-	url: string,
-): Promise<string | undefined> => {
+const fetchLlmSpecFromUrl = async (url: string) => {
 	try {
 		const response = await fetch(url, {
 			headers: {
 				Accept: 'text/plain,text/markdown;q=0.9,*/*;q=0.8',
 			},
-			signal: AbortSignal.timeout(7000),
+			signal: AbortSignal.timeout(SPEC_FETCH_TIMEOUT_MS),
 		});
 
 		if (!response.ok) {
@@ -49,8 +47,8 @@ const fetchLlmSpecFromUrl = async (
 	}
 };
 
-const fetchLlmSpec = async (): Promise<string | undefined> => {
-	for (const specUrl of getSpecUrls()) {
+const fetchLlmSpec = async () => {
+	for (const specUrl of specUrls) {
 		const spec = await fetchLlmSpecFromUrl(specUrl);
 
 		if (spec) {
@@ -61,7 +59,7 @@ const fetchLlmSpec = async (): Promise<string | undefined> => {
 	return undefined;
 };
 
-export const loadLlmSpec = async (): Promise<string | undefined> => {
+export const loadLlmSpec = async () => {
 	llmSpecPromise ??= fetchLlmSpec();
 
 	const llmSpec = await llmSpecPromise;
