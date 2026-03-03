@@ -2,6 +2,7 @@ import { sleep } from 'bun';
 import { ActionRow, Button } from 'seyfert';
 import { ButtonStyle, ChannelType, MessageFlags } from 'seyfert/lib/types';
 import { client } from '@/client';
+import { env } from '@/env';
 import { ask } from '@/shared/ai';
 import {
 	formatDiscordMarkdown,
@@ -236,7 +237,9 @@ const registerTicketCollector = (job: AiJobData) => {
 		]);
 
 		const ticketCollector = ticketMessage.createComponentCollector({
-			filter: (interaction) => interaction.user.id === job.authorId,
+			filter: (interaction) =>
+				interaction.user.id === job.authorId ||
+				env.TEAM_MEMBERS_ID.includes(interaction.user.id),
 		});
 
 		ticketCollector.run(closeTicketButtonCustomId, async (interaction) => {
