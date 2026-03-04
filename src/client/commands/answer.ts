@@ -7,9 +7,6 @@ import {
 import { ApplicationCommandType, MessageFlags } from 'seyfert/lib/types';
 import { enqueueAiJob } from '@/queues/ai/enqueue';
 
-const PROCESSING_ERROR_MESSAGE =
-	'Sorry, we could not process your question right now. Please try again.';
-
 @Declare({
 	contexts: ['Guild'],
 	name: 'Answer',
@@ -45,20 +42,14 @@ export default class AnswerContextMenu extends ContextMenuCommand {
 			true,
 		);
 
-		try {
-			await enqueueAiJob({
-				authorId: target.user.id,
-				channelId: target.channelId,
-				guildId: target.guildId,
-				interactionToken: context.interaction.token,
-				question,
-				replyMessageId: reply.id,
-				isInteraction: true,
-			});
-		} catch {
-			await context.editOrReply({
-				content: PROCESSING_ERROR_MESSAGE,
-			});
-		}
+		await enqueueAiJob({
+			authorId: target.user.id,
+			channelId: target.channelId,
+			guildId: target.guildId,
+			interactionToken: context.interaction.token,
+			question,
+			replyMessageId: reply.id,
+			isInteraction: true,
+		});
 	}
 }
