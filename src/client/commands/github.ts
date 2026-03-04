@@ -8,56 +8,12 @@ import {
 	Options,
 } from 'seyfert';
 import { ButtonStyle } from 'seyfert/lib/types';
+import { REPOSITORIES } from '@/shared/github';
 import { createDesc } from '@/shared/style';
 
 const options = {
 	repository: createStringOption({
-		choices: [
-			{
-				name: 'Node.js SDK',
-				value: 'node',
-			},
-			{
-				name: 'REST client',
-				value: 'rest',
-			},
-			{
-				name: 'Types Definitions',
-				value: 'types',
-			},
-			{
-				name: 'Zod Schemas',
-				value: 'zod',
-			},
-			{
-				name: 'Golang SDK',
-				value: 'golang',
-			},
-			{
-				name: 'CLI',
-				value: 'cli',
-			},
-			{
-				name: 'Documentation',
-				value: 'docs',
-			},
-			{
-				name: 'AI Skills',
-				value: 'skills',
-			},
-			{
-				name: 'Community (.github)',
-				value: '.github',
-			},
-			{
-				name: 'MCP',
-				value: 'mcp',
-			},
-			{
-				name: 'n8n',
-				value: 'n8n',
-			},
-		],
+		choices: REPOSITORIES,
 		description: 'Enter the repository name',
 	}),
 };
@@ -73,21 +29,18 @@ const options = {
 @Options(options)
 export default class GithubCommand extends Command {
 	async run(ctx: CommandContext<typeof options>) {
-		const { repository } = ctx.options;
+		const { repository = '' } = ctx.options;
 
-		const isGoingToOrg = repository === undefined;
-		const targetUrl = isGoingToOrg
-			? 'https://github.com/RewriteToday'
-			: `https://github.com/RewriteToday/${repository}`;
+		const targetUrl = `https://github.com/RewriteToday/${repository}`;
 
 		await ctx.editOrReply({
-			content: `Use the button below to go to our GitHub ${isGoingToOrg ? 'organization' : 'repository'}.`,
+			content: `Use the button below to go to our GitHub.`,
 			components: [
 				new ActionRow<Button>().setComponents([
 					new Button()
+						.setURL(targetUrl)
 						.setLabel('Go to GitHub')
-						.setStyle(ButtonStyle.Link)
-						.setURL(targetUrl),
+						.setStyle(ButtonStyle.Link),
 				]),
 			],
 		});

@@ -27,7 +27,9 @@
 					{ "name": "CLI", "value": "cli" },
 					{ "name": "Documentation", "value": "docs" },
 					{ "name": "AI Skills", "value": "skills" },
-					{ "name": "Community (.github)", "value": ".github" }
+					{ "name": "Community (Github)", "value": ".github" },
+					{ "name": "MCP", "value": "mcp" },
+					{ "name": "n8n", "value": "n8n" }
 				],
 				"description": "Enter the repository name",
 				"type": 3,
