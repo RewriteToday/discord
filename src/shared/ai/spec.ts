@@ -1,6 +1,8 @@
 import { env } from '@/env';
 
-let llmSpecPromise: Promise<string | undefined> | undefined;
+const llmSpecState: {
+	promise?: Promise<string | undefined>;
+} = {};
 
 const SPEC_FETCH_TIMEOUT_MS = 7000;
 
@@ -22,50 +24,41 @@ const isHtmlDocument = (content: string) => {
 };
 
 const fetchLlmSpecFromUrl = async (url: string) => {
-	try {
-		const response = await fetch(url, {
-			headers: {
-				Accept: 'text/plain,text/markdown;q=0.9,*/*;q=0.8',
-			},
-			signal: AbortSignal.timeout(SPEC_FETCH_TIMEOUT_MS),
-		});
+	const response = await fetch(url, {
+		headers: {
+			Accept: 'text/plain,text/markdown;q=0.9,*/*;q=0.8',
+		},
+		signal: AbortSignal.timeout(SPEC_FETCH_TIMEOUT_MS),
+	}).catch(() => null);
 
-		if (!response.ok) {
-			return undefined;
-		}
+	if (!response || !response.ok) return;
 
-		const text = await response.text();
-		const normalized = text.trim();
+	const text = await response.text().catch(() => '');
+	const normalized = text.trim();
 
-		if (!normalized || isHtmlDocument(normalized)) {
-			return undefined;
-		}
+	if (!normalized || isHtmlDocument(normalized)) return;
 
-		return normalized;
-	} catch {
-		return undefined;
-	}
+	return normalized;
 };
 
 const fetchLlmSpec = async () => {
 	for (const specUrl of specUrls) {
 		const spec = await fetchLlmSpecFromUrl(specUrl);
 
-		if (spec) {
-			return spec;
-		}
+		if (spec) return spec;
 	}
 
-	return undefined;
+	return;
 };
 
 export const loadLlmSpec = async () => {
-	llmSpecPromise ??= fetchLlmSpec();
+	llmSpecState.promise ??= fetchLlmSpec();
 
-	const llmSpec = await llmSpecPromise;
+	const llmSpec = await llmSpecState.promise;
 
 	if (!llmSpec) {
-		llmSpecPromise = undefined;
+		llmSpecState.promise = undefined;
+		return;
 	}
 
 	return llmSpec;
