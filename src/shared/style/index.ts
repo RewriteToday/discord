@@ -1,3 +1,5 @@
+import type { ExtractedCodeBlock } from '@/types/style';
+
 export const createDesc = (content: string, aliases: string[]) =>
 	`(${aliases.join(', ')}): ${content}`;
 
@@ -9,15 +11,7 @@ const windowsNewlineRegex = /\r\n?/g;
 const edgeNewlineRegex = /^\n+|\n+$/g;
 const excessiveNewlinesRegex = /\n{3,}/g;
 
-type ExtractedCodeBlock = {
-	language: string;
-	code: string;
-};
-
-export type DiscordMarkdownWithCodeBlocks = {
-	content: string;
-	codeBlocks: ExtractedCodeBlock[];
-};
+export type { DiscordMarkdownWithCodeBlocks } from '@/types/style';
 
 export const formatDiscordMarkdown = (content: string) => {
 	const normalizedContent = content.replace(windowsNewlineRegex, '\n').trim();
