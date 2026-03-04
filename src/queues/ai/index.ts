@@ -1,33 +1,25 @@
 import { Queue } from 'bullmq';
-import { isExpectedRedisError, redisConnection } from '@/queues/redis';
-import { type AI_JOB_NAME, AI_QUEUE_NAME, type AiJobData } from '@/types/queue';
+import { redisConnection } from '@/queues/redis';
+import { AI_QUEUE_NAME } from '@/shared/ai/constants';
+import type { AIQueueData } from '@/types/queue';
 
-export const aiQueue = new Queue<AiJobData, void, typeof AI_JOB_NAME>(
-	AI_QUEUE_NAME,
-	{
-		connection: redisConnection,
-		defaultJobOptions: {
-			removeOnComplete: {
-				count: 5000,
-				age: 60 * 60,
-			},
-			removeOnFail: {
-				age: 24 * 60 * 60,
-			},
-			attempts: 3,
-			backoff: {
-				delay: 3000,
-				type: 'exponential',
-			},
-			lifo: false,
+export const aiQueue = new Queue<AIQueueData, void>(AI_QUEUE_NAME, {
+	connection: redisConnection,
+	defaultJobOptions: {
+		removeOnComplete: {
+			count: 5000,
+			age: 60 * 60,
 		},
-		skipWaitingForReady: true,
-		skipVersionCheck: true,
+		removeOnFail: {
+			age: 24 * 60 * 60,
+		},
+		attempts: 3,
+		backoff: {
+			delay: 3000,
+			type: 'exponential',
+		},
+		lifo: false,
 	},
-);
-
-aiQueue.on('error', (error) => {
-	if (!isExpectedRedisError(error)) {
-		console.error(error);
-	}
+	skipWaitingForReady: true,
+	skipVersionCheck: true,
 });

@@ -1,7 +1,4 @@
-export const AI_QUEUE_NAME = 'ai-questions';
-export const AI_JOB_NAME = 'answer-question';
-
-export type AiJobData = {
+export interface AIQueueData {
 	authorId: string;
 	channelId: string;
 	guildId?: string;
@@ -9,4 +6,4 @@ export type AiJobData = {
 	question: string;
 	replyMessageId: string;
 	isInteraction?: true;
-};
+}

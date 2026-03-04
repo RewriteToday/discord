@@ -1,12 +1,13 @@
 import { Worker } from 'bullmq';
 import { redisConnection } from '@/queues/redis';
-import { type AI_JOB_NAME, AI_QUEUE_NAME, type AiJobData } from '@/types/queue';
-import { processAiJobData } from './process';
+import { AI_QUEUE_NAME } from '@/shared/ai/constants';
+import type { AIQueueData } from '@/types/queue';
+import { processAIQueueData } from './process';
 
-export const worker = new Worker<AiJobData, void, typeof AI_JOB_NAME>(
+export const worker = new Worker<AIQueueData, void>(
 	AI_QUEUE_NAME,
 	async ({ data }) => {
-		await processAiJobData(data);
+		await processAIQueueData(data);
 	},
 	{
 		connection: redisConnection,
