@@ -40,9 +40,6 @@ export default class AnswerContextMenu extends ContextMenuCommand {
 
 		const reply = await context.write(
 			{
-				allowed_mentions: {
-					parse: [],
-				},
 				content: `${context.author} is answering ${target.url} for ${target.user}`,
 			},
 			true,
