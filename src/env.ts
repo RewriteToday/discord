@@ -2,7 +2,6 @@ import { cleanEnv, json, num, str } from 'envalid';
 
 export const env = cleanEnv(process.env, {
 	APP_TOKEN: str({ desc: 'Discord token of the app' }),
-	DISCORD_SERVER_INVITE: str({ desc: 'Invite URL of the support server' }),
 	TEAM_MEMBERS_ID: json<string[]>({ desc: 'Discord ID of the dev team' }),
 	GROQ_API_KEY: str({ desc: 'Groq API key' }),
 	GROQ_FALLBACK_API_KEYS: json<string[]>({

@@ -1,20 +1,12 @@
-import { ActionRow, Button, Client } from 'seyfert';
+import { Client } from 'seyfert';
 import {
 	ActivityType,
-	ButtonStyle,
-	ChannelType,
 	MessageFlags,
 	PresenceUpdateStatus,
 } from 'seyfert/lib/types';
-import { env } from '../env';
 import { middlewares } from '../middlewares';
 
 const COMMAND_PREFIXES = ['r.'];
-const cachedChannelTypes = new Set<ChannelType>([
-	ChannelType.GuildText,
-	ChannelType.PublicThread,
-	ChannelType.GuildForum,
-]);
 
 export const client = new Client({
 	presence() {
@@ -39,16 +31,7 @@ export const client = new Client({
 			async onRunError(context) {
 				await context.write({
 					flags: MessageFlags.Ephemeral,
-					components: [
-						new ActionRow<Button>().setComponents([
-							new Button()
-								.setEmoji('🩶')
-								.setStyle(ButtonStyle.Link)
-								.setLabel('Go to the server')
-								.setURL(env.DISCORD_SERVER_INVITE),
-						]),
-					],
-					content: 'An *error* just occurred, join our server and report it!',
+					content: 'An *error* just occurred, report it to the team!',
 				});
 			},
 		},
@@ -60,4 +43,3 @@ client.setServices({
 });
 
 client.cache.users!.filter = ({ bot }) => !bot;
-client.cache.channels!.filter = ({ type }) => cachedChannelTypes.has(type);
