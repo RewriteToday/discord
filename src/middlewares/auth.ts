@@ -7,7 +7,7 @@ export const isAuthed = createMiddleware<never>(
 		if (!env.TEAM_MEMBERS_ID.includes(context.author.id)) {
 			await context.write({
 				flags: MessageFlags.Ephemeral,
-				content: 'Hey, this command can only be used by Rewrite developers!',
+				content: 'Hey, this command can only be used by the Rewrite team!',
 			});
 
 			return pass();
