@@ -20,6 +20,7 @@
 	"scripts": {
 		"biome:check": "biome check --write .",
 		"typecheck": "bunx tsc --noEmit",
-		"client": "bun run src/index.ts"
+		"client": "bun run src/index.ts",
+		"client:compile": "bun build --compile --minify --target bun-linux-x64 --outfile app ./src/index.ts"
 	}
 }
