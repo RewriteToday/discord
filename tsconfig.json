@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"module": "esnext",
 		"target": "ESNext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"strict": true,
 		"esModuleInterop": true,
 		"experimentalDecorators": true,
@@ -20,7 +20,6 @@
 		"outDir": "./dist",
 		"rootDir": "./src",
 		"paths": { "@/*": ["./src/*"] },
-		"baseUrl": ".",
 		"stripInternal": true
 	},
 	"exclude": ["node_modules"],
