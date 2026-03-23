@@ -4,7 +4,10 @@ import {
 	type MenuCommandContext,
 	type MessageCommandInteraction,
 } from 'seyfert';
-import { ApplicationCommandType, MessageFlags } from 'seyfert/lib/types';
+import {
+	ApplicationCommandType,
+	MessageFlags,
+} from 'seyfert/lib/types/index.js';
 import { enqueueAiJob } from '@/queues/ai/enqueue';
 
 @Declare({

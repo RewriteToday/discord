@@ -1,0 +1,15 @@
+autoInstallPeers: false
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - esbuild
+  - msgpackr-extract
+
+peerDependencyRules:
+  allowAny:
+    - '*'
+  ignoreMissing:
+    - '*'
+
+publicHoistPattern:
+  - '*@biomejs/biome*'

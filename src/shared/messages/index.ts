@@ -1,7 +1,7 @@
 import type { Message } from 'seyfert';
 
 export const isClientMention = (message: Message) => {
-	const CLIENT_MENTION = `<@${message.client.me.id}>`;
+	const CLIENT_MENTION = `<@${message.client.botId}>`;
 
 	return message.content.trim().startsWith(CLIENT_MENTION);
 };
@@ -16,7 +16,7 @@ export const getQuestionContent = (message: Message) => {
 	)
 		return referencedMessage.content.trim();
 
-	const CLIENT_MENTION = `<@${message.client.me.id}>`;
+	const CLIENT_MENTION = `<@${message.client.botId}>`;
 
 	return message.content.trim().slice(CLIENT_MENTION.length);
 };

@@ -1,12 +1,10 @@
 [
 	{
-		"name": "ping",
-		"type": 1,
-		"nsfw": false,
-		"description": "(ping, latency): Show current Rewrite app latency",
-		"contexts": [0, 1, 2],
-		"integration_types": [0],
-		"options": []
+		"name": "Answer",
+		"type": 3,
+		"description": "",
+		"contexts": [0],
+		"integration_types": [0]
 	},
 	{
 		"name": "github",
@@ -40,10 +38,12 @@
 		]
 	},
 	{
-		"name": "Answer",
-		"type": 3,
-		"description": "",
-		"contexts": [0],
-		"integration_types": [0]
+		"name": "ping",
+		"type": 1,
+		"nsfw": false,
+		"description": "(ping, latency): Show current Rewrite app latency",
+		"contexts": [0, 1, 2],
+		"integration_types": [0],
+		"options": []
 	}
 ]

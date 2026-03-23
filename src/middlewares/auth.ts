@@ -1,5 +1,5 @@
 import { createMiddleware } from 'seyfert';
-import { MessageFlags } from 'seyfert/lib/types';
+import { MessageFlags } from 'seyfert/lib/types/index.js';
 import { env } from '@/env';
 
 export const isAuthed = createMiddleware<never>(

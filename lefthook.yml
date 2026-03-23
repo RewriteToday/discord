@@ -12,20 +12,20 @@ pre-commit:
 
         echo "$FILES" \
           | grep -E '\.(ts|js|json)$' \
-          | xargs -r bunx biome check --write
+          | xargs -r pnpm dlx biome check --write
 
         git add $FILES
 
-        bun run biome:check
+        pnpm run biome:check
 
 pre-push:
   commands:
     validate:
       use_stdin: true
       run: |
-        bun run biome:check
+        pnpm run biome:check
 
-        OUTPUT=$(bun run typecheck 2>&1)
+        OUTPUT=$(pnpm run typecheck 2>&1)
         STATUS=$?
 
         if [ $STATUS -ne 0 ]; then
@@ -44,4 +44,4 @@ commit-msg:
   commands:
     commitlint:
       use_stdin: true
-      run: bun --bun commitlint --edit {1}
+      run: pnpm dlx commitlint --edit {1}

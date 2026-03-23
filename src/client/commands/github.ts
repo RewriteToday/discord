@@ -7,7 +7,7 @@ import {
 	Declare,
 	Options,
 } from 'seyfert';
-import { ButtonStyle } from 'seyfert/lib/types';
+import { ButtonStyle } from 'seyfert/lib/types/index.js';
 import { REPOSITORIES } from '@/shared/github';
 import { createDesc } from '@/shared/style';
 

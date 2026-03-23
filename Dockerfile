@@ -1,29 +1,25 @@
-FROM oven/bun:1 AS base
-WORKDIR /usr/src/app
+FROM node:24-slim AS base
 
-FROM base AS install
-RUN mkdir -p /temp/dev
-COPY package.json bun.lock /temp/dev/
-RUN cd /temp/dev && bun install --frozen-lockfile
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
-RUN mkdir -p /temp/prod
-COPY package.json bun.lock /temp/prod/
-RUN cd /temp/prod && bun install --frozen-lockfile --production
+RUN corepack enable
+COPY . /app
+COPY commands.json /app/commands.json
+WORKDIR /app
 
-FROM base AS prerelease
-COPY --from=install /temp/dev/node_modules node_modules
-COPY . .
+FROM base AS prod-deps
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
-ENV NODE_ENV=production
-RUN bun run client:compile
+FROM base AS build
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm run client:compile
 
-FROM base AS release
-COPY --from=install /temp/prod/node_modules node_modules
-COPY --from=prerelease /usr/src/app/app ./app
-COPY --from=prerelease /usr/src/app/package.json .
-COPY --from=prerelease /usr/src/app/seyfert.config.ts .
-COPY --from=prerelease /usr/src/app/seyfert.module.ts .
-COPY --from=prerelease /usr/src/app/commands.json .
 
-USER bun
-ENTRYPOINT [ "./app" ]
+FROM base
+COPY --from=prod-deps /app/node_modules /app/node_modules
+COPY --from=build /app/dist /app/dist
+COPY commands.json /app/commands.json
+COPY seyfert.config.mjs /app/seyfert.config.mjs
+
+CMD [ "node", "--enable-source-maps", "dist/index.js" ]

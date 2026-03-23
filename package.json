@@ -4,23 +4,23 @@
 	"type": "module",
 	"private": true,
 	"devDependencies": {
-		"@biomejs/biome": "^2.4.4",
-		"@commitlint/config-conventional": "^20.4.2",
-		"@types/bun": "latest",
-		"commitlint": "^20.4.2"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
+		"@biomejs/biome": "^2.4.8",
+		"@commitlint/config-conventional": "^20.5.0",
+		"@swc/core": "^1.15.21",
+		"commitlint": "^20.5.0",
+		"tsup": "^8.5.1",
+		"tsx": "^4.21.0",
+		"typescript": "^6.0.2"
 	},
 	"dependencies": {
-		"bullmq": "^5.70.1",
+		"bullmq": "^5.71.0",
 		"envalid": "^8.1.1",
 		"seyfert": "^4.2.2"
 	},
 	"scripts": {
 		"biome:check": "biome check --write .",
-		"typecheck": "bunx tsc --noEmit",
-		"client": "bun run src/index.ts",
-		"client:compile": "bun build --compile --minify --target bun-linux-x64 --outfile app ./src/index.ts"
+		"typecheck": "tsc --noEmit",
+		"client": "tsx --env-file=.env --watch src/index.ts",
+		"client:compile": "tsup"
 	}
 }
