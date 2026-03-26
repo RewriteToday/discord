@@ -31,9 +31,10 @@ const fetchLlmSpecFromUrl = async (url: string) => {
 		signal: AbortSignal.timeout(SPEC_FETCH_TIMEOUT_MS),
 	}).catch(() => null);
 
-	if (!response || !response.ok) return;
+	if (!response?.ok) return;
 
 	const text = await response.text().catch(() => '');
+
 	const normalized = text.trim();
 
 	if (!normalized || isHtmlDocument(normalized)) return;
