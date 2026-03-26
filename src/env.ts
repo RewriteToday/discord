@@ -28,4 +28,11 @@ export const env = cleanEnv(process.env, {
 		default: 'redis_password',
 		desc: 'Redis password used by BullMQ',
 	}),
+
+	SUPPORT_CHANNEL_ID: str({
+		desc: 'Support channel ID to compare against "parentId"',
+	}),
+	TEAM_ROLE_ID: str({
+		desc: 'ID of the role of the team to mention in commands',
+	}),
 });
