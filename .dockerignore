@@ -18,4 +18,4 @@ biome.*
 lefthook.*
 app*
 commitlint*
-bun.lock
+dist

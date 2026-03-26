@@ -6,8 +6,7 @@ on:
     paths:
       - "src/**"
       - "package.json"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
+      - "bun.lock"
       - "seyfert.config.ts"
       - "seyfert.module.ts"
       - "commands.json"
