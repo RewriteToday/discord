@@ -1,6 +1,10 @@
-import { sleep } from 'bun';
+import { setInterval as sleep } from 'node:timers/promises';
 import { ActionRow, Button } from 'seyfert';
-import { ButtonStyle, ChannelType, MessageFlags } from 'seyfert/lib/types';
+import {
+	ButtonStyle,
+	ChannelType,
+	MessageFlags,
+} from 'seyfert/lib/types/index.js';
 import { client } from '@/client';
 import { env } from '@/env';
 import type { AIQueueData } from '@/types/queue';

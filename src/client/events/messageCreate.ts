@@ -1,5 +1,5 @@
 import { ActionRow, Button, createEvent } from 'seyfert';
-import { ButtonStyle } from 'seyfert/lib/types';
+import { ButtonStyle } from 'seyfert/lib/types/index.js';
 import { enqueueAiJob } from '@/queues/ai/enqueue';
 import { getQuestionContent, isClientMention } from '@/shared/messages';
 import { THINKING_MESSAGE } from '@/shared/style/responses';

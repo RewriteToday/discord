@@ -24,7 +24,8 @@ services:
       [
         "--proactor_threads=2",
         "--maxmemory=600mb",
-        "--default_lua_flags=allow-undeclared-keys",
+        "--cluster_mode=emulated",
+        "--lock_on_hashtags",
         "--requirepass=${REDIS_PASSWORD:-redis_password}"
       ]
 

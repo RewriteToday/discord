@@ -33,8 +33,6 @@
 				],
 				"description": "Enter the repository name",
 				"type": 3,
-				"name_localizations": {},
-				"description_localizations": {},
 				"autocomplete": false
 			}
 		]

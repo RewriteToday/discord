@@ -3,7 +3,7 @@ import {
 	ActivityType,
 	MessageFlags,
 	PresenceUpdateStatus,
-} from 'seyfert/lib/types';
+} from 'seyfert/lib/types/index.js';
 import { middlewares } from '../middlewares';
 
 const COMMAND_PREFIXES = ['r.'];

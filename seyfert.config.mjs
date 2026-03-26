@@ -1,11 +1,11 @@
 import { config } from 'seyfert';
-import { env } from '@/env';
+
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 export default config.bot({
-	token: env.APP_TOKEN,
+	token: process.env.APP_TOKEN,
 	locations: {
-		base: 'src/client',
-
+		base: IS_PRODUCTION ? 'dist/client' : 'src/client',
 		events: 'events',
 		commands: 'commands',
 	},
