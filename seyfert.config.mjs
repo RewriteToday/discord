@@ -9,5 +9,11 @@ export default config.bot({
 		commands: 'commands',
 		base: IS_PRODUCTION ? 'dist/client' : 'src/client',
 	},
-	intents: ['Guilds', 'MessageContent', 'GuildMembers', 'GuildMessages'],
+	intents: [
+		'Guilds',
+		'GuildMembers',
+		'GuildMessages',
+		'DirectMessages',
+		'MessageContent',
+	],
 });

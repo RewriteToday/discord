@@ -5,12 +5,12 @@
     "": {
       "name": "rewrite",
       "dependencies": {
-        "bullmq": "^5.71.0",
+        "bullmq": "^5.71.1",
         "envalid": "^8.1.1",
         "seyfert": "^4.2.2",
       },
       "devDependencies": {
-        "@biomejs/biome": "^2.4.8",
+        "@biomejs/biome": "^2.4.9",
         "@commitlint/config-conventional": "^20.5.0",
         "@types/bun": "^1.3.11",
         "commitlint": "^20.5.0",
