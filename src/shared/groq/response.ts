@@ -81,6 +81,8 @@ const extractAnswerFromJsonLike = (value: string) => {
 	const decoded = decodeEscapedCharacters(state.answer).trim();
 
 	if (decoded && decoded !== UNKNOWN_ANSWER) return decoded;
+
+	return;
 };
 
 const parseStructuredAnswer = (value: string) =>
@@ -123,6 +125,8 @@ export const extractGroqText = (body: unknown) => {
 	const content = candidate?.message?.content?.trim();
 
 	if (content) return content;
+
+	return;
 };
 
 export const extractGroqApiError = (body: unknown) => {

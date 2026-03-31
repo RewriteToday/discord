@@ -41,5 +41,7 @@ export default createEvent({
 			authorId: message.author.id,
 			channelId: message.channelId,
 		});
+
+		return;
 	},
 });

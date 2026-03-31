@@ -75,4 +75,6 @@ export const askGroqWithReference = async (
 	}
 
 	if (allResultsAreRateLimited(results)) return QUOTA_EXCEEDED_REPLY;
+
+	return;
 };

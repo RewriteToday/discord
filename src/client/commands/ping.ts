@@ -11,6 +11,7 @@ import { createDesc } from '@/shared/style';
 })
 export default class PingCommand extends Command {
 	async run(ctx: CommandContext) {
+		// @ts-expect-error
 		const ping = ctx.client.gateway.latency;
 
 		await ctx.write({
