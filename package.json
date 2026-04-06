@@ -21,6 +21,6 @@
 		"biome:check": "biome check --write .",
 		"typecheck": "tsc --noEmit",
 		"client": "bun --watch src/index.ts",
-		"client:compile": "bun build src/index.ts src/client/commands/*.ts src/client/events/*.ts --outdir dist --format=esm --target=node --sourcemap"
+		"client:compile": "bun build src/index.ts src/client/commands/*.ts src/client/events/*.ts --root src --outdir dist --format=esm --target=node --sourcemap"
 	}
 }
